@@ -11,8 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 //import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
+//import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
@@ -41,16 +42,45 @@ public class EmailController {
         );
     }
 
-    @PostMapping("/send-with-file")
-    public ResponseEntity<?> sendEmailWithFile (@RequestPart EmailRequest emailRequest, @RequestPart MultipartFile file) throws IOException{
-        emailService.sendEmailWithFile(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getMessage(), file.getInputStream());
-        return ResponseEntity.ok(
-            CustomResponse.builder()
-                .message("Email with file sent successfully")
-                .httpStatus(HttpStatus.OK)
-                .success(true)
-                .build()
-        );
+    // @PostMapping("/send-with-file")
+    // public ResponseEntity<?> sendEmailWithFile (@RequestPart EmailRequest emailRequest, @RequestPart MultipartFile file) throws IOException{
+    //     emailService.sendEmailWithFile(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getMessage(), file.getInputStream());
+    //     return ResponseEntity.ok(
+    //         CustomResponse.builder()
+    //             .message("Email with file sent successfully")
+    //             .httpStatus(HttpStatus.OK)
+    //             .success(true)
+    //             .build()
+    //     );
+    // }
+
+   @PostMapping("/send-with-file")
+public String sendEmailWithFile(
+        @RequestParam String to,
+        @RequestParam String subject,
+        @RequestParam String message,
+        @RequestParam(required = false) MultipartFile file,
+        org.springframework.ui.Model model
+) throws IOException {
+
+    try {
+        if (file != null && !file.isEmpty()) {
+            emailService.sendEmailWithFile(to, subject, message, file.getInputStream());
+        } else {
+            emailService.sendEmailWithHtml(to, subject, message);
+        }
+
+        model.addAttribute("successMessage", "Email sent successfully!");
+        System.out.println("Email sent successfully to: " + to);
+
+    } catch (Exception e) {
+        model.addAttribute("errorMessage", "Failed to send email!");
+        System.out.println(e.getMessage());
+        System.out.println("Failed to send email to: " + to);
     }
+
+    return "email-form"; 
+    // Loads same HTML page again
+}
 
 }
