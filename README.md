@@ -61,6 +61,9 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 ### 4️⃣ Open in browser
 http://localhost:8080/
 
+<img width="591" height="659" alt="image" src="https://github.com/user-attachments/assets/14084b89-4729-4688-8e13-2d2b22dcb1bf" />
+
+
 ## 📌 Future Improvements
 
 - OAuth2 Gmail login
