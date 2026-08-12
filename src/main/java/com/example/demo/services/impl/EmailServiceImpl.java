@@ -36,7 +36,7 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setTo(to);
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
-        simpleMailMessage.setFrom("gdananyapt@gmail.com");
+        simpleMailMessage.setFrom("your_email");
         mailSender.send(simpleMailMessage);
        // logger.info("Email sent to: {}", to);
     }
@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
         simpleMailMessage.setTo(to);
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
-        simpleMailMessage.setFrom("gdananyapt@gmail.com");
+        simpleMailMessage.setFrom("your_email");
         mailSender.send(simpleMailMessage);
     }
 
@@ -59,7 +59,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(simpleMailMessage, true,"UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("gdananyapt@gmail.com");
+            helper.setFrom("your_email");
             helper.setText(htmlContent, true);
             mailSender.send(simpleMailMessage);
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(simplMailMessage, true,"UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("gdananyapt@gmail.com");
+            helper.setFrom("your_email");
             helper.setText(message, false);
             FileSystemResource fileResource = new FileSystemResource(file);
             helper.addAttachment(fileResource.getFilename(), fileResource);
@@ -94,7 +94,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(simplMailMessage, true,"UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("gdananyapt@gmail.com");
+            helper.setFrom("your_email");
             helper.setText(message, true);
             File file = new File("src\\main\\resources\\static\\email\\test.png");
             
