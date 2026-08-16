@@ -12,8 +12,8 @@ public class PageController {
         // returns email-form.html from templates folder
     }
 
-    @GetMapping("/api/v1/emails/send-with-file")
-    public String showEmailForm() {
-        return "email-form";
-    }
+    // @GetMapping("/api/v1/emails/send-with-file")
+    // public String showEmailForm() {
+    //     return "email-form";
+    // }
 }

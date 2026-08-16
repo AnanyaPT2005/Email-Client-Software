@@ -1,30 +1,25 @@
+
 package com.example.demo.services.impl;
 
 import com.example.demo.services.EmailService;
 import jakarta.mail.internet.MimeMessage;
 
 import java.io.File;
-//import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-// import org.springframework.core.io.InputStreamSource;
 
-// import org.apache.commons.logging.Log;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.FileSystemResource;
-import java.nio.file.StandardCopyOption;
-
-
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+    @Value("${spring.mail.username}")
+    private String email;
 
-    private JavaMailSender mailSender;
-
-    // private Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
+    private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -32,78 +27,162 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendEmail(String to, String subject, String message) {
+
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+
         simpleMailMessage.setTo(to);
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
-        simpleMailMessage.setFrom("your_email");
+        simpleMailMessage.setFrom(email);
+
         mailSender.send(simpleMailMessage);
-       // logger.info("Email sent to: {}", to);
     }
 
     @Override
     public void sendEmail(String[] to, String subject, String message) {
-       
+
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+
         simpleMailMessage.setTo(to);
         simpleMailMessage.setSubject(subject);
         simpleMailMessage.setText(message);
-        simpleMailMessage.setFrom("your_email");
+        simpleMailMessage.setFrom(email);
+
         mailSender.send(simpleMailMessage);
     }
 
     @Override
-    public void sendEmailWithHtml(String to, String subject, String htmlContent) {
+    public void sendEmailWithHtml(
+            String to,
+            String subject,
+            String htmlContent) {
+
         MimeMessage simpleMailMessage = mailSender.createMimeMessage();
+
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(simpleMailMessage, true,"UTF-8");
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(
+                            simpleMailMessage,
+                            true,
+                            "UTF-8"
+                    );
+
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("your_email");
+            helper.setFrom(email);
             helper.setText(htmlContent, true);
+
             mailSender.send(simpleMailMessage);
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+
+            throw new RuntimeException(
+                    "Failed to send email",
+                    e
+            );
         }
-       
     }
 
     @Override
-    public void sendEmailWithFile(String to, String subject, String message, File file) {
-        // Implementation for sending email with attachment
-        MimeMessage simplMailMessage =mailSender.createMimeMessage();
+    public void sendEmailWithFile(
+            String to,
+            String subject,
+            String message,
+            File file) {
+
+        MimeMessage simpleMailMessage =
+                mailSender.createMimeMessage();
+
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(simplMailMessage, true,"UTF-8");
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(
+                            simpleMailMessage,
+                            true,
+                            "UTF-8"
+                    );
+
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("your_email");
+            helper.setFrom(email);
             helper.setText(message, false);
-            FileSystemResource fileResource = new FileSystemResource(file);
-            helper.addAttachment(fileResource.getFilename(), fileResource);
-            mailSender.send(simplMailMessage);
+
+            FileSystemResource fileResource =
+                    new FileSystemResource(file);
+
+            helper.addAttachment(
+                    fileResource.getFilename(),
+                    fileResource
+            );
+
+            mailSender.send(simpleMailMessage);
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+
+            throw new RuntimeException(
+                    "Failed to send email",
+                    e
+            );
         }
     }
 
     @Override
-    public void sendEmailWithFile(String to, String subject, String message, InputStream is) {
-        // Implementation for sending email with attachment using InputStream
-        MimeMessage simplMailMessage =mailSender.createMimeMessage();
+    public void sendEmailWithFile(
+            String to,
+            String subject,
+            String message,
+            MultipartFile file) {
+
+        sendEmailWithFile(
+                new String[]{to},
+                subject,
+                message,
+                file
+        );
+    }
+
+    @Override
+    public void sendEmailWithFile(
+            String[] to,
+            String subject,
+            String message,
+            MultipartFile file) {
+
+        MimeMessage simpleMailMessage =
+                mailSender.createMimeMessage();
+
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(simplMailMessage, true,"UTF-8");
+
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(
+                            simpleMailMessage,
+                            true,
+                            "UTF-8"
+                    );
+
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setFrom("your_email");
-            helper.setText(message, true);
-            File file = new File("src\\main\\resources\\static\\email\\test.png");
-            
-            Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            FileSystemResource fileResource = new FileSystemResource(file);
-            helper.addAttachment(fileResource.getFilename(), fileResource);
-            mailSender.send(simplMailMessage);
+            helper.setFrom(email);
+            helper.setText(message, false);
+
+            /*
+             * Create a fresh InputStream whenever JavaMail
+             * needs to read the attachment.
+             */
+            helper.addAttachment(
+                    file.getOriginalFilename(),
+                    () -> file.getInputStream()
+            );
+
+            mailSender.send(simpleMailMessage);
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
-        } 
+
+            throw new RuntimeException(
+                    "Failed to send email",
+                    e
+            );
+        }
     }
 }
